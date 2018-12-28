@@ -108,9 +108,9 @@ void* carFrom(void* info)
 
 	pthread_mutex_lock(&waitQMut[direction]);
 	enqueue(number,waitCarQueue[direction]);
-	pthread_mutex_unlock(&waitQMut[direction]);
+	//pthread_mutex_unlock(&waitQMut[direction]);
 
-	pthread_mutex_lock(&waitQMut[direction]);
+	//pthread_mutex_lock(&waitQMut[direction]);
 	while(front(waitCarQueue[direction])!=number)pthread_cond_wait(&outQueue[direction],&waitQMut[direction]);
 	pthread_mutex_lock(&printLock);
 	printf("Car %d from %s arrives at crossing.\n", number, dirS);
@@ -156,7 +156,7 @@ void* carFrom(void* info)
 
 	pthread_mutex_lock(&waitQMut[direction]);
 	dequeue(waitCarQueue[direction]);
-	pthread_cond_signal(&outQueue[direction]);
+	pthread_cond_broadcast(&outQueue[direction]);
 	pthread_mutex_unlock(&waitQMut[direction]);
 }
 //Thread function for the deadLock check
