@@ -24,7 +24,7 @@ There are two roads and two lanes for each road and they intersect with each oth
 * The car move to west need b,c.
 * The car move to south need c,a.
 * The car move to east need d,a.  
-Fig1(https://github.com/Rust401/ZJU_OS_lab1/blob/master/Synchronous.png?raw=true) 
+![Fig1](https://github.com/Rust401/ZJU_OS_lab1/blob/master/Synchronous.png?raw=true) 
 
 
 We need to handle the sychronous problem and prevent the hungry and deadlock of the car when they pass the across. In our system, there are cars from different direction pass through the across. The cars in same direction line up in turn to through the intersection. According to the traffic rule, the car from **right** side get the privilige of go first. (e.g. In Fig(1), assume there is car1, car2 and car3, the order of will be **car1->car2->car3**).  
