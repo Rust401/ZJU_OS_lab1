@@ -148,16 +148,16 @@ void* carFrom(void* info)
 	pthread_mutex_lock(&waitQMut[direction]);
 	pthread_cond_signal(&first[(direction+3)%4]);
 	pthread_mutex_unlock(&waitQMut[direction]);
+	
+	pthread_mutex_lock(&waitQMut[direction]);
+	dequeue(waitCarQueue[direction]);
+	pthread_cond_signal(&outQueue[direction]);
+	pthread_mutex_unlock(&waitQMut[direction]);
+
 	someDudeInCross=0;
 	pthread_cond_signal(&outCross);
 	
-	
 	pthread_mutex_unlock(&cross);
-
-	pthread_mutex_lock(&waitQMut[direction]);
-	dequeue(waitCarQueue[direction]);
-	pthread_cond_broadcast(&outQueue[direction]);
-	pthread_mutex_unlock(&waitQMut[direction]);
 }
 //Thread function for the deadLock check
 //--------------------------------------------------------------------------------------------------------------------
@@ -171,10 +171,10 @@ void* checkDeadLock()
 		while(someDudeInCross)pthread_cond_wait(&outCross,&cross);
 
 		int i;
-		for(i=0;i<4;++i)pthread_mutex_lock(&waitingLock[i]);
+		//for(i=0;i<4;++i)pthread_mutex_lock(&waitingLock[i]);
 		if(!(waiting[NORTH]==1&&waiting[WEST]==1&&waiting[SOUTH]==1&&waiting[EAST]==1))
 		{
-			for(i=3;i>=0;--i)pthread_mutex_unlock(&waitingLock[i]);
+			//for(i=3;i>=0;--i)pthread_mutex_unlock(&waitingLock[i]);
 			pthread_mutex_unlock(&cross);
 			continue;
 		}
@@ -183,11 +183,13 @@ void* checkDeadLock()
 		printf("DEADLOCK: car jam detected, signalling NORTH to go.\n");
 		pthread_mutex_unlock(&printLock);
 
-		for(i=3;i>=0;--i)pthread_mutex_unlock(&waitingLock[i]);
+		//for(i=3;i>=0;--i)pthread_mutex_unlock(&waitingLock[i]);
 
 		pthread_mutex_lock(&waitQMut[WEST]);
 		pthread_cond_signal(&first[NORTH]);
 		pthread_mutex_unlock(&waitQMut[WEST]);
+
+		pthread_cond_signal(&outCross);
 
 		pthread_mutex_unlock(&cross);
 	}
