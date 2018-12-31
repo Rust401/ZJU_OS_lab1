@@ -1,6 +1,6 @@
 # Operating System(2018-2019Fall&Winter)LAB1
 
-```
+```shell
 Project Name:   Sychronous Mutual Exclusion and Linux Kernel Module
 Student Name:   Hu.Zhaodong
 Student ID  :   21714069
@@ -24,7 +24,7 @@ There are two roads and two lanes for each road and they intersect with each oth
 * The car move to west need b,c.
 * The car move to south need c,a.
 * The car move to east need d,a.  
-[Fig1](https://github.com/Rust401/ZJU_OS_lab1/blob/master/Synchronous.png?raw=true) 
+![Fig1](https://github.com/Rust401/ZJU_OS_lab1/blob/master/Synchronous.png?raw=true) 
 
 
 We need to handle the sychronous problem and prevent the hungry and deadlock of the car when they pass the across. In our system, there are cars from different direction pass through the across. The cars in same direction line up in turn to through the intersection. According to the traffic rule, the car from **right** side get the privilige of go first. (e.g. In Fig(1), assume there is car1, car2 and car3, the order of will be **car1->car2->car3**).  
@@ -37,7 +37,7 @@ The general rule list below:
 * No **AND semaphore**, says the car can not request two road resources simultaneously (e.g. The south car can not judge if a or b are free simultaneously).
 
 ### DEVICE
-```
+```shell
 CPU     :       intel core i7-4790k (4C8T) 4.6GHz
 RAM     :       16G
 OS      :       ubuntu-16.04.5-desktop-i386(Kernel 4.6.0)
@@ -59,7 +59,7 @@ We solve the problem by assign a thread for each car and solve the problem with 
 10) Then the car quit the queue and the car behind it can check if they are the new head now.  
 
 In general, the car behavior can be conclued to the diagram below:
-```
+```text
 start->
 enter a queue->
 wait till become the head->
@@ -67,6 +67,10 @@ check the right-side(queue empty?)->
 check the cross(cross empty?)->
 enter the cross->
 leave the cross->
+give signal to the left side car->
+quit from the queue->
+get out of the cross->
+end
 
 ```
 
@@ -80,7 +84,7 @@ We don't let the car to check if the deadlock happens, we let a character who is
 * **Something about pthread:**
   
   `pthread_cond_wait` is a interesting function, we pass the two parameters to it, the `pthread_cond_t` and the `pthread_mutex_t`. When the function is invoked, we let the thread to wait until the cond is satisfied, and meanwhile we find the mutex passed in, and **unlock** the mutex! So when this thread is waiting for the conditon, other thread could do something in the critcal section. (It's just like if we don't pull, we hand over my pit so others could use.) And when the condition is satisfied, we regain the possesion of the mutex(that is lock the dirMut again) The process just like that:
-  ```
+  ```text
   invoke->unlock the mutex->wait->conditon satisfied->lock again->continue
   ```
   And we usually usr the `pthread_cond_t` with the `while` loop and `pthread_mutex_t`. Check the example below:
@@ -105,7 +109,7 @@ We don't let the car to check if the deadlock happens, we let a character who is
 * **A subtle method:**
   
   Some subtle things may happen when the car in the same direction is wait in the queue. When after a car thread created and assigned values, the car will enter a queue contains parteners have same direction. The car in the thread will enter a `while` loop to check if they are the head of the queue. If not, they will be in the waiting status and waiting the out car to give the signal. In my design, when a car is stuck in the condition `outQueue[direction]` using the `pthread_cond_wait()`, this car thread will release the mutex and let the car thread still not enter the queue to enter the queue and wait the same signal (Yes, the signal give by the car get out of the queue). No there is more than one thread is waiting. But the `pthread_cond_signal()` can only wake one thread. If the car thread in the queue which is waken by the out car thread is not in the queue head yet. The waken car thread will re-check the conditon in the `while` loop and found it still not statisfied (still not in the head), the car thread will back to wait. And the former car out the queue and out the cross but no new car in the same direction wake up from the sleep. That's a disaster! So we use the `pthread_cond_broadcast()` to wake all the car thread wait in this direction and only the head car can successfully re-check the conditon in the while loop and continue the trip. The check-failed car will back to the waiting status.
-    ```
+    ```text
     car1->car2->car3->car4->...->cark->...
      ^     ^     ^     ^          ^
     wait  wait  wait  wait       wait
@@ -120,3 +124,24 @@ We don't let the car to check if the deadlock happens, we let a character who is
 * **A problem in the deadlock check:**
   
   In this design, the car dosen't check if there is a deadlock. All car need to do is to tell the god(the checkman) it is in the waiting conditon due the right-side cars. So the deadlock check thread have to check the conditon again and agian. Besides, the check thread has to check 4 flags for the 4 direction. we could make sure the flags to check will not be change once the check thread is working in its critical section to gain the whole 4 mutex of the flags. But we can't guarantee after the flags stand, the car thread will stop move. The must be situation like this: A car is in the waiting status, and the check thread notice that. The car may continue when the condition statified.But simultenously, the car thread check the 3 other directions and find they are all in the waiting status and give the "NORTH FIRST" signal. Actually there is no deadlock actually. A more persuasive solution is waiting to be figure out.
+
+### Code
+The code could get from the `carCross.c` file in the zip. Or just visit my [github repository](https://github.com/Rust401/ZJU_OS_lab1). And details are commited in my source file.  
+Use the instruction below to compile and run:  
+```cpp
+//compile
+gcc -pthread -o carCross carCross.c
+//run (can use any argv[1] with the size below 100 to test)
+./carCross wsnewsnewsnewsneewsesewn
+```
+
+## CONTENT2
+Write a linux kernel module, which has the function to traverse all the process. This module can output the **name**, **pid**, **process state**, **parent name**. Besides, it can also statistic the **nubmer of the different type processes**, include `TASK_RUNNING`, `TASK_ZOMBIE`, `TASK_INTERRUPTIBLE`, `TASK_UNINTERRRUPTIBLE`, `TASK_STOP` etc. And write a **user-mode** program to output the result in the monitor. Give each line of the code some commit.  
+### DEVICE
+```
+CPU     :       intel core i7-4790k (4C8T) 4.6GHz
+RAM     :       16G
+OS      :       ubuntu-16.04.5-desktop-i386(Kernel 4.6.0)
+gcc     :       4.8.5
+thread  :       posix  
+```
