@@ -1,9 +1,7 @@
-#define MODULE
 #include<linux/module.h>
 #include<linux/kernel.h>
-#include<linux/init.h>
 #include<linux/sched.h>
-#include<linux/list.h>
+
 
 int init_module(void)
 {
