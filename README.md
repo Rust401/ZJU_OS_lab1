@@ -136,7 +136,7 @@ gcc -pthread -o carCross carCross.c
 ```
 
 ## CONTENT2
-Write a linux kernel module, which has the function to traverse all the process. This module can output the **name**, **pid**, **process state**, **parent name**. Besides, it can also statistic the **nubmer of the different type processes**, include `TASK_RUNNING`, `TASK_ZOMBIE`, `TASK_INTERRUPTIBLE`, `TASK_UNINTERRRUPTIBLE`, `TASK_STOP` etc. And write a **user-mode** program to output the result in the monitor. Give each line of the code some commit.  
+Write a linux kernel module, which has the function to traverse all the process. This module can output the **name**, **pid**, **process state**, **parent name**. Besides, it can also statistic the **nubmer of the different type processes**, include `TASK_RUNNING`, `TASK_ZOMBIE`, `TASK_INTERRUPTIBLE`, `TASK_UNINTERRRUPTIBLE`, `TASK_STOP` etc. And write a **user-mode** program to output the result in the monitor. Give each line of the code some commit.  
 ### DEVICE
 ```
 CPU     :       intel core i7-4790k (4C8T) 4.6GHz
