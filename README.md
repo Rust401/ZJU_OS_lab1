@@ -67,7 +67,7 @@ check the right-side(queue empty?)->
 check the cross(cross empty?)->
 enter the cross->
 leave the cross->
-give signal to the left side car->
+give signal to the left side car->
 quit from the queue->
 get out of the cross->
 end
