@@ -145,3 +145,45 @@ OS      :       ubuntu-16.04.5-desktop-i386(Kernel 4.6.0)
 gcc     :       4.8.5
 thread  :       posix  
 ```
+### SOLUTION
+We use a pointer to point the `init_task`, then we traverse all the `task_struct` to find out the **PID**, **DESCRIPTOR**, **FATHER DESCRIPTOR**, **FATHER PID**, **STATE** and output them in the monitor. In the last we output the statistic information of different state process. For some reason the `printk()` will only output the information to `/var/log/kern.log`. We could use the command `dmesg` to show the output information. But it either show two much information or the quantity of the imformation is too much so the dmesg can't show them all. So we write another user programm to open the `/var/log/kern.log` and output the imformation we want.
+### CODE
+#### kernel module
+Visit [process_module.c](https://github.com/Rust401/ZJU_OS_lab1/blob/master/process_module.c) in my Github or just visit the file `process_module.c` in the same directory.  
+**usage:**
+```cpp
+//build
+make
+//run the module
+insmod process_module.ko
+//remove the module
+rmmod process_module.ko
+//remove the make file
+make clean
+```
+#### Makefile
+Visit [Makefile](https://github.com/Rust401/ZJU_OS_lab1/blob/master/Makefile) in my github or just visit the file `Makefile` in the same directory.
+```Makefile
+TARGET=process_module
+KDIR=/usr/src/linux
+PWD=$(shell pwd)
+obj-m += $(TARGET).o
+default:
+	make -C $(KDIR) M=$(PWD) modules
+clean:
+	make -C $(KDIR) M=$(PWD) clean
+```
+**usage:**
+```shell
+make
+make clean
+```
+#### user interface
+Visit [user_Interface.c](https://github.com/Rust401/ZJU_OS_lab1/blob/master/user_Interface.c) in my github or just visit the file `user_Interface.c` in the same directory.  
+After we make the module ,we could just compile the `user-Interface.c` by gcc and then run the executable file. And this program will insert the module, find the information in `/var/log/kern.log` and out put. After printing the program will let the system to remove the module.  
+**usage:**
+```cpp
+//do it after the make
+gcc -o user user_Interface.c
+./user
+```
