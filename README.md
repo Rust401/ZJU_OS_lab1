@@ -128,7 +128,7 @@ The code could get from the `carCross.c` file in the zip. Or just visit my [gith
 Use the instruction below to compile and run:  
 ```cpp
 //compile
-gcc -pthread -o carCross carCross.c
+gcc -pthread -o carCross newCrossRoad.c
 //run (can use any argv[1] with the size below 100 to test)
 ./carCross wsnewsnewsnewsneewsesewn
 ```
